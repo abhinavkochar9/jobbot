@@ -1,0 +1,17 @@
+[Unit]
+Description=jobbot - autonomous research-internship application bot
+After=network-online.target
+
+[Service]
+Type=simple
+WorkingDirectory=%h/jobbot
+Environment=PYTHONPATH=%h/jobbot/src
+Environment=PYTHONUNBUFFERED=1
+ExecStart=%h/jobbot/.venv/bin/python -m jobbot.main run
+Restart=always
+RestartSec=30
+StandardOutput=append:%h/jobbot/logs/service.log
+StandardError=append:%h/jobbot/logs/service.log
+
+[Install]
+WantedBy=default.target

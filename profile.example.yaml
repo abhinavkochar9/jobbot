@@ -1,0 +1,214 @@
+# profile.example.yaml — copy to profile.yaml and fill in.
+#
+# This file is the SINGLE SOURCE OF TRUTH for everything the bot says about you:
+# every resume bullet, cover-letter claim, and screening answer must trace back
+# here. Tailoring may SELECT and ORDER these facts per job; it may never invent.
+# profile.yaml is git-ignored — it holds personal data. Keep it that way.
+#
+# Structure mirrors a CV: contact, summary, education, publications, experience,
+# projects (each with `tags` used for job matching), skills, leadership, awards,
+# then `research_areas_priority` (drives scoring) and `application_answers`
+# (standing rules for screening questions — wrong answers here silently kill
+# applications, so never leave them as guesses).
+contact:
+  name: Jane Doe
+  email: you@example.com
+  phone: +1 (555) 000-0000
+  location: City, State, USA
+  linkedin: https://linkedin.com/in/you
+  github: https://github.com/you
+  google_scholar: https://scholar.google.com/citations?user=...
+headline: <headline>
+summary: <summary>
+education:
+- institution: <institution>
+  location: <location>
+  degree: <degree>
+  advisor: <advisor>
+  dates: <dates>
+  expected_graduation: <expected_graduation>
+  focus:
+  - <...>
+- institution: <institution>
+  location: <location>
+  degree: <degree>
+  gpa: <gpa>
+  dates: <dates>
+  focus:
+  - <...>
+  certifications:
+  - <...>
+- institution: <institution>
+  location: <location>
+  degree: <degree>
+  cgpa: <cgpa>
+  dates: <dates>
+  certifications:
+  - <...>
+publications:
+- authors: <authors>
+  title: <title>
+  venue: <venue>
+  year: 2026
+- authors: <authors>
+  title: <title>
+  venue: <venue>
+  year: 2026
+experience:
+- organization: <organization>
+  role: <role>
+  location: <location>
+  dates: <dates>
+  bullets:
+  - <...>
+  technologies:
+  - <...>
+- organization: <organization>
+  role: <role>
+  location: <location>
+  dates: <dates>
+  bullets:
+  - <...>
+  technologies:
+  - <...>
+- organization: <organization>
+  role: <role>
+  location: <location>
+  dates: <dates>
+  bullets:
+  - <...>
+  technologies:
+  - <...>
+projects:
+- name: <name>
+  label: <label>
+  dates: <dates>
+  tags:
+  - <...>
+  bullets:
+  - <...>
+  technologies:
+  - <...>
+- name: <name>
+  label: <label>
+  dates: <dates>
+  tags:
+  - <...>
+  source: <source>
+  bullets:
+  - <...>
+  technologies:
+  - <...>
+- name: <name>
+  label: <label>
+  dates: <dates>
+  tags:
+  - <...>
+  source: <source>
+  bullets:
+  - <...>
+  technologies:
+  - <...>
+- name: <name>
+  label: <label>
+  dates: <dates>
+  tags:
+  - <...>
+  bullets:
+  - <...>
+  technologies:
+  - <...>
+- name: <name>
+  label: <label>
+  dates: <dates>
+  tags:
+  - <...>
+  bullets:
+  - <...>
+  technologies:
+  - <...>
+- name: <name>
+  label: <label>
+  dates: <dates>
+  tags:
+  - <...>
+  bullets:
+  - <...>
+  technologies:
+  - <...>
+- name: <name>
+  label: <label>
+  dates: <dates>
+  tags:
+  - <...>
+  bullets:
+  - <...>
+  technologies:
+  - <...>
+skills:
+  programming:
+  - <...>
+  ai_ml_dl:
+  - <...>
+  theoretical_ml:
+  - <...>
+  robotics_agentic:
+  - <...>
+  computer_vision:
+  - <...>
+  llm_rag:
+  - <...>
+  cloud_devops:
+  - <...>
+  data_science:
+  - <...>
+  quantum:
+  - <...>
+  web_apis:
+  - <...>
+  databases:
+  - <...>
+  specialized:
+  - <...>
+leadership:
+- organization: <organization>
+  role: <role>
+  dates: <dates>
+  bullets:
+  - <...>
+- organization: <organization>
+  role: <role>
+  dates: <dates>
+  bullets:
+  - <...>
+- organization: <organization>
+  role: <role>
+  dates: <dates>
+  bullets:
+  - <...>
+awards:
+- <...>
+research_areas_priority:
+- your first research area (highest weight)
+- second
+- third
+application_answers:
+  work_authorization_status: e.g. F-1 student visa; internships via CPT
+  requires_future_sponsorship: true
+  authorized_to_work_us: true
+  us_citizen_or_clearance: false
+  expected_phd_graduation: 2030
+  expected_phd_graduation_month: May
+  target_internship_terms:
+  - Summer 2027
+  internship_duration: 3-6 months, flexible
+  internship_start: 'Summer 2027: May or June 2027.'
+  onsite_willingness: Yes — willing to relocate and work onsite anywhere in the US
+  office_choice_rule: When offered a choice of offices, pick the US office
+  how_heard_about_role: Company careers page
+  demographic_questions: Always decline to self-identify
+  citizenship: <country>
+  permanent_residence: <country>
+  export_control_note: Answer US export-control questions from your citizenship truthfully.
+  never_apply_companies:
+  - Anthropic

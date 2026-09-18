@@ -1,0 +1,154 @@
+# ============================================================
+# jobbot configuration — KITS MODE (2026-09-18): find, score, prepare, email; the user submits.
+# auto_apply is off. Flip it to true to resume Greenhouse/Lever/Ashby auto-submits.
+#
+# Anthropic carve-out: watched + scored + instant alerts, but NEVER
+# auto-applied (listed in profile.yaml never_apply_companies). Their
+# applicant policy prohibits AI-generated application content and their
+# forms require attesting you've read it. Anthropic is applied to by hand
+# from the draft kit:  python -m jobbot.draftkit
+# ============================================================
+
+# MODE: KITS (2026-09-18). The bot finds, scores, and prepares; the user submits.
+# Every morning: one email per qualifying posting with the link, attached
+# tailored materials, and a field-by-field answer sheet scanned from the form.
+auto_apply: false
+
+kits:
+  enabled: true
+  threshold: 65      # postings at/above this get a kit
+  per_day: 5         # highest-scoring first; the rest roll to tomorrow
+
+score_threshold: 70
+discovery_interval_hours: 2
+
+limits:
+  max_submissions_per_day: 5
+  max_per_company_per_week: 2
+  delay_min_seconds: 180     # 3 min
+  delay_max_seconds: 600     # 10 min
+  company_title_dedupe_days: 90
+
+# Companies whose new matching postings trigger an instant email alert.
+top_tier: [Physical Intelligence, Anthropic, OpenAI, Google DeepMind, xAI, Meta (FAIR/GenAI), Microsoft Research]
+
+# Companies whose non-'intern' research titles (Fellows Program, Research
+# Engineer/Scientist, Residency) should still be tracked. Elsewhere the
+# matcher stays internship-only so the bot never auto-applies to senior
+# full-time roles.
+broad_title_companies: [Anthropic]
+
+# ---------------- ATS watchlist ----------------
+# token = the board slug in the public ATS API URL.
+watchlist:
+  greenhouse:
+    - { company: Anthropic, token: anthropic, research_org: true }
+    - { company: xAI, token: xai, research_org: true }
+    - { company: Waymo, token: waymo }
+    - { company: Nuro, token: nuro }
+    - { company: Wayve, token: wayve, research_org: true }
+    - { company: Databricks (Mosaic), token: databricks }
+    - { company: Isomorphic Labs, token: isomorphiclabs, research_org: true }
+    - { company: Figure, token: figureai }
+    - { company: Samsung Research America, token: samsungresearchamerica }
+    - { company: Together AI, token: togetherai, research_org: true }
+    - { company: Scale AI, token: scaleai }
+    - { company: World Labs, token: worldlabs, research_org: true }
+    - { company: Agility Robotics, token: agilityrobotics }
+    - { company: Apptronik, token: apptronik }
+  lever:
+    - { company: Mistral, token: mistral, research_org: true }
+    - { company: Spotify Research, token: spotify }
+    - { company: Toyota Research Institute, token: tri, research_org: true }
+    - { company: Zoox, token: zoox }
+    - { company: Waabi, token: waabi, research_org: true }
+  ashby:
+    - { company: OpenAI, token: openai, research_org: true }
+    - { company: Cohere, token: cohere, research_org: true }
+    - { company: Runway, token: runway, research_org: true }
+    - { company: Insitro, token: insitro, research_org: true }
+    - { company: Snowflake AI Research, token: Snowflake }
+    - { company: Physical Intelligence, token: physicalintelligence, research_org: true }
+    - { company: 1X, token: 1x }
+    - { company: Luma, token: lumaai }
+    - { company: Thinking Machines Lab, token: thinkingmachines, research_org: true }
+    - { company: Reflection AI, token: reflectionai, research_org: true }
+    - { company: Generalist AI, token: generalist, research_org: true }
+    - { company: Cerebras, token: cerebras }
+    - { company: Liquid AI, token: liquid-ai, research_org: true }
+    - { company: Reka, token: reka, research_org: true }
+    - { company: Genmo, token: genmo, research_org: true }
+  smartrecruiters:
+    - { company: Bosch Research, token: BoschGroup }
+    - { company: ServiceNow Research, token: ServiceNow }
+  workable:
+    - { company: Hugging Face, token: huggingface }
+  workday:
+    - { company: NVIDIA, host: nvidia.wd5.myworkdayjobs.com, tenant: nvidia, site: NVIDIAExternalCareerSite }
+    - { company: Adobe Research, host: adobe.wd5.myworkdayjobs.com, tenant: adobe, site: external_experienced }
+    - { company: Salesforce Research, host: salesforce.wd12.myworkdayjobs.com, tenant: salesforce, site: External_Career_Site }
+    - { company: Intel Labs, host: intel.wd1.myworkdayjobs.com, tenant: intel, site: External }
+    - { company: Disney Research, host: disney.wd5.myworkdayjobs.com, tenant: disney, site: disneycareer }
+  eightfold:
+    - { company: Netflix Research, host: explore.jobs.netflix.net, domain: netflix.com, query: research }
+
+# Big portals with pollable public careers-search JSON endpoints.
+# Microsoft's and Google's public search endpoints are dead (moved/cert-broken)
+# — both are on manual_watch until a reliable endpoint is found.
+portals:
+  microsoft: { enabled: false, query: research intern }
+  google: { enabled: false, query: research intern }
+  amazon: { enabled: true, query: research intern }
+
+# Sites we can't poll reliably — surfaced in every daily digest instead.
+manual_watch:
+  - { company: Meta (FAIR/GenAI), url: "https://www.metacareers.com/jobs?q=research%20intern" }
+  - { company: Apple (AIML), url: "https://jobs.apple.com/en-us/search?search=machine%20learning%20research%20intern" }
+  - { company: Microsoft Research, url: "https://jobs.careers.microsoft.com/global/en/search?q=research%20intern" }
+  - { company: Google Research / DeepMind Student Researcher, url: "https://www.google.com/about/careers/applications/jobs/results?q=student%20researcher" }
+  - { company: Tesla, url: "https://www.tesla.com/careers/search/?query=intern" }
+  - { company: Snap Research, url: "https://careers.snap.com/jobs?q=research" }
+  - { company: ByteDance Research, url: "https://jobs.bytedance.com/en/position?keywords=research%20intern" }
+  - { company: IBM Research, url: "https://www.ibm.com/careers/search?q=research%20intern" }
+  - { company: JPMorgan AI Research, url: "https://careers.jpmorgan.com/us/en/students" }
+  - { company: Two Sigma, url: "https://careers.twosigma.com/careers/SearchJobs/intern" }
+  - { company: Qualcomm AI Research, url: "https://careers.qualcomm.com/careers?query=research%20intern" }
+  - { company: AMD, url: "https://careers.amd.com/careers-home/jobs?keywords=intern" }
+  - { company: Allen Institute for AI (AI2), url: "https://allenai.org/careers" }
+  - { company: Sony AI, url: "https://ai.sony/joinus/jobroles/" }
+  - { company: Perplexity AI, url: "https://www.perplexity.ai/hub/careers" }
+  - { company: Skild AI, url: "https://www.skild.ai/careers" }
+  - { company: RAI Institute (Boston Dynamics AI Institute), url: "https://rai-inst.com/careers/" }
+  - { company: MERL, url: "https://www.merl.com/internship/openings" }
+  - { company: SRI International, url: "https://www.sri.com/careers/" }
+  - { company: Siemens Research, url: "https://jobs.siemens.com/careers" }
+  - { company: GE Research, url: "https://www.ge.com/research/careers" }
+  - { company: Honda Research Institute, url: "https://usa.honda-ri.com/careers" }
+  - { company: Boston Dynamics, url: "https://bostondynamics.com/careers/" }
+
+aggregators:
+  remotive: { enabled: true }
+  hn_whoishiring: { enabled: true }
+  adzuna: { enabled: false }        # enable after keys in .env
+  github_repos: { enabled: true, search: "research internships 2027 OR PhD internships list" }
+
+# Optional overrides for scoring.py defaults (uncomment to customise):
+# scoring:
+#   research_keywords:            # [regex, points], capped at 50 total
+#     - ["world\\s+model", 14]
+#     - ["imitation\\s+learning|robot\\s+learning", 14]
+#     - ["interpretab|mechanistic", 12]
+#   preferred_locations: "san\\s+francisco|bay\\s+area|palo\\s+alto"
+
+# Target terms for timing-fit scoring (from profile answers)
+target_terms: ["Summer 2027", "Fall 2026"]
+
+tailoring:
+  model: claude-sonnet-5
+  max_letter_words: 300
+  statement_min_words: 150
+  statement_max_words: 400
+
+dashboard:
+  host: 127.0.0.1
+  port: 8787

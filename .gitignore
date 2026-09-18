@@ -1,0 +1,14 @@
+*.pyc
+.DS_Store
+.env
+.venv/
+STOP
+__pycache__/
+data/*.db
+data/*.db-journal
+data/*.pdf
+evidence/
+logs/
+materials/
+profile.yaml
+reports/
