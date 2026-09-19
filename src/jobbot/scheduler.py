@@ -50,6 +50,13 @@ def run_forever() -> None:
             log.exception("application processing failed (loop continues)")
 
         try:
+            from .inbox import poll
+            for r in poll():
+                log.info("kit reply #%s: %s (%r)", r["posting_id"], r["outcome"], r["said"][:40])
+        except Exception:  # noqa: BLE001
+            log.exception("inbox poll failed (loop continues)")
+
+        try:
             now = datetime.now()
             if now.hour >= DIGEST_HOUR and last_digest_day != now.date():
                 if config.get("kits", {}).get("enabled", True):

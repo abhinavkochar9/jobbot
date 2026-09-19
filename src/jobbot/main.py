@@ -5,6 +5,9 @@
   python -m jobbot.main health             # watcher health
   python -m jobbot.main tailor <id> [...]  # generate materials for posting ids
   python -m jobbot.main apply [--limit N]  # process application queue (respects DRY_RUN)
+  python -m jobbot.main applied <id ...>   # record kits you submitted by hand
+  python -m jobbot.main inbox              # read 'done' replies now
+  python -m jobbot.main pending            # kits awaiting your submission
   python -m jobbot.main digest             # compose+send the daily digest now
   python -m jobbot.main dashboard          # serve read-only dashboard
   python -m jobbot.main run                # 24/7 scheduler loop
@@ -88,6 +91,10 @@ def main() -> None:
     tp.add_argument("ids", nargs="+", type=int)
     ap = sub.add_parser("apply")
     ap.add_argument("--limit", type=int, default=None)
+    ap2 = sub.add_parser("applied")
+    ap2.add_argument("ids", nargs="+", type=int, help="posting ids you submitted by hand")
+    sub.add_parser("inbox")
+    sub.add_parser("pending")
     sub.add_parser("digest")
     sub.add_parser("dashboard")
     sub.add_parser("run")
@@ -104,6 +111,19 @@ def main() -> None:
         cmd_tailor(args.ids)
     elif args.command == "apply":
         cmd_apply(args.limit)
+    elif args.command == "applied":
+        from .inbox import _record
+        for pid in args.ids:
+            _record(pid, "applied", "marked from the command line")
+            print(f"recorded applied: posting #{pid}")
+    elif args.command == "inbox":
+        from .inbox import poll
+        for r in poll():
+            print(f"#{r['posting_id']:<5} {r['outcome']:<9} {r['said'][:50]!r}")
+    elif args.command == "pending":
+        from .inbox import outstanding
+        for k in outstanding():
+            print(f"[{k['score']:>3}] #{k['id']:<4} {k['company'][:22]:<22} {k['title'][:44]}")
     elif args.command == "digest":
         from . import notify
         print(notify.daily_digest(cfg.load_config())[:2000])

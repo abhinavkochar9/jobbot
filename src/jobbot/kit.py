@@ -225,7 +225,8 @@ def render_kit(posting: dict, n: int, total: int, fields, rows, materials, polic
             "quantum": "quantum ML", "diffusion": "generative models", "biomechanic": "healthcare / biomechanics"}
     hits = ", ".join(dict.fromkeys(next((v for k, v in NICE.items() if h.lower().lstrip("(?:").startswith(k)), "ML")
                                    for h in bd.get("keyword_hits", [])[:6]))
-    subject = f"[jobbot KIT {n}/{total}] {posting['company']} — {posting['title'][:60]} (score {posting['score']})"
+    subject = (f"[jobbot KIT #{posting['id']}] {posting['company']} — "
+               f"{posting['title'][:55]} (score {posting['score']}, {n}/{total})")
     L = []
     L.append(f"{posting['company']} — {posting['title']}")
     L.append(f"Score {posting['score']}/100 · {posting.get('location') or 'location n/a'}")
@@ -251,7 +252,8 @@ def render_kit(posting: dict, n: int, total: int, fields, rows, materials, polic
     if not policy:
         L.append(" 2. Where a cover letter or statement is asked, paste the attached .txt.")
     L.append(f" {'3' if not policy else '2'}. Fill the fields exactly as below. Rows marked (suggested, LOW) are your call.")
-    L.append(f" {'4' if not policy else '3'}. Submit. Reply to this email with 'done' and I'll log it.")
+    L.append(f" {'4' if not policy else '3'}. Submit, then REPLY to this email with just: done")
+    L.append("   (reply 'skip' instead and it won't be offered again)")
     L.append("")
     if rows:
         L.append("FIELD-BY-FIELD (scanned from the live form)")

@@ -22,20 +22,31 @@ flowchart TD
     K["<b>6a · APPLICATION KIT</b><br/>emailed 07:00 — link, attachments,<br/>field-by-field answer sheet<br/><b>you submit, ~10 min</b>"]
     A["<b>6b · AUTO-APPLY</b> <i>(opt-in)</i><br/>fills from profile + answer bank"]
     V{"<b>7 · VERIFY</b><br/>success banner?"}
-    R(["<b>applied ✓</b><br/>screenshot + email receipt"])
+    RE["<b>8 · you reply</b> <i>done</i> <b>to the kit</b><br/>read over IMAP each cycle"]
+    R(["<b>applied ✓</b> — logged, capped, deduped<br/>auto: screenshot · by hand: your reply"])
 
     D --> M --> S
     S -->|"below threshold"| SK
     S -->|"≥ threshold"| T --> G
     G -->|"AI-use policy · account wall<br/>CAPTCHA · unsure answer"| K
     G -->|"clean form, auto_apply on"| A --> V
+    K --> RE --> R
     V -->|yes| R
     V -->|"no proof"| K
 
     style G fill:#fde68a,stroke:#b45309,color:#1c1917
     style K fill:#bbf7d0,stroke:#15803d,color:#14532d
+    style RE fill:#bbf7d0,stroke:#15803d,color:#14532d
     style R fill:#bfdbfe,stroke:#1d4ed8,color:#1e3a8a
 ```
+
+**Closing the loop on manual submissions.** Kits carry a posting id in the
+subject (`[jobbot KIT #123]`). Reply `done` once you've submitted and the bot
+reads it over IMAP on the next cycle and records the application; reply `skip`
+and the posting is dropped. Only your own words count — quoted text from the
+kit itself is ignored, so nothing is marked applied by accident. Anything still
+unanswered appears in the next digest under *awaiting your submission*
+(`jobbot.main pending`, or `jobbot.main applied <id>` from a terminal).
 
 Everything lands in SQLite (`postings`, `applications`, screening Q&A log,
 answer bank, watcher health) and is visible in the token-protected dashboard and
@@ -55,6 +66,7 @@ queue, and any watcher that silently broke.
 | **Safety gates** | `apply/__init__.py` | Required question without a confident answer → your phone; references / transcripts / advisor / salary → always you; account wall or CAPTCHA → manual card, never bypassed; employer restricts AI → never auto-submitted; caps 5/day, 2/company/week, 90-day dedupe; `STOP` file halts everything. |
 | **Submit + verify** | `apply/forms.py` | Records "applied" only on a visible success banner, with a screenshot. A click alone is never counted. |
 | **Kits** | `kit.py` | Morning email per qualifying posting: link, attachments, and an answer sheet scanned from the live form. Employers that restrict AI get your own CV and source material instead of drafts. |
+| **Reply tracking** | `inbox.py` | Reads `done` / `skip` replies to kit emails over IMAP so hand-submitted applications are recorded, counted against caps, and deduped. Parses only your unquoted words. |
 | **Notify** | `notify.py` | Email receipt per submission, daily digest, instant alerts for top-tier companies; falls back to `reports/` files without SMTP. |
 | **Dashboard + phone app** | `dashboard.py` | Token-protected FastAPI on your tailnet: history, watcher health, and a swipe queue — right = apply, left = skip, question cards answered once and remembered forever. |
 
@@ -84,6 +96,8 @@ PYTHONPATH=src .venv/bin/python -m jobbot.main report       # scored postings
 PYTHONPATH=src .venv/bin/python -m jobbot.main tailor 12    # materials for posting #12
 PYTHONPATH=src .venv/bin/python -m jobbot.main apply --limit 1   # DRY_RUN: fills + screenshots, never submits
 PYTHONPATH=src .venv/bin/python -m jobbot.kit 3             # email yourself 3 application kits
+PYTHONPATH=src .venv/bin/python -m jobbot.main pending      # kits awaiting your submission
+PYTHONPATH=src .venv/bin/python -m jobbot.main applied 12   # record one you submitted by hand
 ```
 
 Everything the bot generates is inspectable: `materials/` (what it wrote),

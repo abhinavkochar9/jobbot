@@ -121,6 +121,17 @@ def daily_digest(config: dict) -> str:
             lines.append(f"  {mark} {r['watcher']:<36} found={r['postings_found']} "
                          f"{('— ' + r['last_error'][:80]) if r['last_error'] else ''}")
 
+    try:
+        from .inbox import outstanding
+        pend = outstanding()
+        lines.append(f"\nAWAITING YOUR SUBMISSION ({len(pend)} kits sent, no reply yet)")
+        lines.append("  reply 'done' to a kit email once you've submitted it, or 'skip' to drop it")
+        for k in pend[:15]:
+            lines.append(f"  [{k['score']:>3}] {k['company']} — {k['title'][:46]}")
+            lines.append(f"        {k['url']}")
+    except Exception:  # noqa: BLE001
+        pass
+
     lines.append("\nMANUAL WATCH (no reliable API — check these yourself):")
     for m in config.get("manual_watch", []):
         lines.append(f"  {m['company']}: {m['url']}")
