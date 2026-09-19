@@ -334,10 +334,14 @@ def candidates(config: dict, limit: int) -> list[dict]:
             "AND NOT EXISTS (SELECT 1 FROM applications a WHERE a.posting_id=p.id AND a.status='applied') "
             "AND NOT EXISTS (SELECT 1 FROM swipes s WHERE s.posting_id=p.id AND s.decision='skip') "
             "ORDER BY p.score DESC, p.first_seen DESC", (thr,)).fetchall()
+    with db.get_db() as conn:  # roles already kitted, so a duplicate listing isn't re-sent
+        for k in conn.execute("SELECT p.company, p.title FROM kits k JOIN postings p "
+                              "ON p.id=k.posting_id"):
+            seen_ct.add((k["company"].lower(), re.sub(r"\W+", "", k["title"].lower())[:60]))
     for r in rows:
         if r["company"].lower() in never:
             continue  # Anthropic-style: draft kit only, never a generated kit
-        key = (r["company"].lower(), re.sub(r"\W+", "", r["title"].lower()))
+        key = (r["company"].lower(), re.sub(r"\W+", "", r["title"].lower())[:60])
         if key in seen_ct:
             continue
         seen_ct.add(key)
@@ -350,7 +354,16 @@ def candidates(config: dict, limit: int) -> list[dict]:
 def morning_kits(config: dict) -> list[dict]:
     """Send the day's batch of kits, highest score first."""
     per_day = config.get("kits", {}).get("per_day", 5)
-    batch = candidates(config, per_day)
+    from datetime import date as _date
+    with db.get_db() as conn:
+        sent_today = conn.execute(
+            "SELECT COUNT(*) c FROM kits WHERE substr(sent_at,1,10)=?",
+            (_date.today().isoformat(),)).fetchone()["c"]
+    remaining = max(0, per_day - sent_today)
+    if remaining == 0:
+        log.info("kits: daily cap of %d already sent today", per_day)
+        return []
+    batch = candidates(config, remaining)
     results = []
     for i, p in enumerate(batch, 1):
         try:

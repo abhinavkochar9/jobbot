@@ -66,6 +66,10 @@ CREATE TABLE IF NOT EXISTS kits (
     subject TEXT,
     path TEXT
 );
+CREATE TABLE IF NOT EXISTS meta (
+    key TEXT PRIMARY KEY,
+    value TEXT NOT NULL
+);
 CREATE TABLE IF NOT EXISTS watcher_health (
     watcher TEXT PRIMARY KEY,
     last_run TEXT,
@@ -156,6 +160,16 @@ def submissions_today(conn) -> int:
     return conn.execute(
         "SELECT COUNT(*) c FROM applications WHERE status='applied' AND timestamp LIKE ?",
         (today + "%",)).fetchone()["c"]
+
+
+def get_meta(conn, key: str) -> str | None:
+    row = conn.execute("SELECT value FROM meta WHERE key=?", (key,)).fetchone()
+    return row["value"] if row else None
+
+
+def set_meta(conn, key: str, value: str) -> None:
+    conn.execute("INSERT INTO meta (key, value) VALUES (?,?) "
+                 "ON CONFLICT(key) DO UPDATE SET value=excluded.value", (key, value))
 
 
 def norm_question(q: str) -> str:

@@ -8,6 +8,7 @@ import time
 from datetime import date, datetime
 
 from . import config as cfg
+from . import db
 from . import notify
 from .apply import process_queue
 from .discovery import run_discovery
@@ -21,7 +22,6 @@ def run_forever() -> None:
     cfg.setup_logging("scheduler")
     config = cfg.load_config()
     interval = config.get("discovery_interval_hours", 2) * 3600
-    last_digest_day: date | None = None
 
     # dashboard runs in-process on localhost
     threading.Thread(target=_dashboard_thread, daemon=True).start()
@@ -58,13 +58,19 @@ def run_forever() -> None:
 
         try:
             now = datetime.now()
-            if now.hour >= DIGEST_HOUR and last_digest_day != now.date():
+            today = now.date().isoformat()
+            # Persisted in SQLite, not memory: a service restart after
+            # DIGEST_HOUR must never re-fire the morning batch.
+            with db.get_db() as conn:
+                already = db.get_meta(conn, "last_digest_day") == today
+            if now.hour >= DIGEST_HOUR and not already:
                 if config.get("kits", {}).get("enabled", True):
                     from .kit import morning_kits
                     sent = morning_kits(config)
                     log.info("morning kits: %d sent", len(sent))
                 notify.daily_digest(config)
-                last_digest_day = now.date()
+                with db.get_db() as conn:
+                    db.set_meta(conn, "last_digest_day", today)
         except Exception:  # noqa: BLE001
             log.exception("digest failed (loop continues)")
 

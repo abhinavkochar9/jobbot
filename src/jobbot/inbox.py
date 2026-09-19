@@ -62,6 +62,7 @@ def _body_text(msg) -> str:
 
 def poll(mark_seen: bool = True) -> list[dict]:
     """Read unseen replies to kit emails and record the outcomes."""
+    cfg.load_config()          # ensures .env is loaded on the CLI path too
     host = os.environ.get("IMAP_HOST", "imap.gmail.com")
     user = os.environ.get("SMTP_USER")
     password = os.environ.get("SMTP_PASSWORD")
@@ -134,14 +135,25 @@ def _record(posting_id: int, outcome: str, said: str) -> None:
             log.info("recorded SKIP: %s — %s", row["company"], row["title"][:50])
 
 
-def outstanding() -> list[dict]:
-    """Kits sent but not yet answered — surfaced in the daily digest."""
+def outstanding(dedupe: bool = True) -> list[dict]:
+    """Kits sent but not yet answered — surfaced in the daily digest.
+    Job boards sometimes list one role under two ids; collapse those."""
     with db.get_db() as conn:
-        return [dict(r) for r in conn.execute(
+        rows = [dict(r) for r in conn.execute(
             "SELECT k.sent_at, p.id, p.company, p.title, p.score, p.url FROM kits k "
             "JOIN postings p ON p.id=k.posting_id "
             "WHERE NOT EXISTS (SELECT 1 FROM applications a WHERE a.posting_id=p.id "
             "                  AND a.status='applied') "
             "AND NOT EXISTS (SELECT 1 FROM swipes s WHERE s.posting_id=p.id "
             "                AND s.decision='skip') "
-            "ORDER BY p.score DESC")]
+            "ORDER BY p.score DESC, p.id")]
+    if not dedupe:
+        return rows
+    seen, out = set(), []
+    for r in rows:
+        key = (r["company"].lower(), re.sub(r"\W+", "", r["title"].lower())[:60])
+        if key in seen:
+            continue
+        seen.add(key)
+        out.append(r)
+    return out
