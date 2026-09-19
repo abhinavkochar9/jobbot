@@ -13,28 +13,28 @@ nothing about you is in the code.
 
 ```mermaid
 flowchart TD
-    D["<b>1 · DISCOVER</b><br/>46 public job boards, polled every 2 h<br/><i>Greenhouse · Lever · Ashby · Workday · SmartRecruiters<br/>Workable · Eightfold · Amazon · HN · Remotive</i>"]
-    M["<b>2 · MATCH</b><br/>research-internship titles only<br/><i>drops undergrad-only, pure SWE, clearance-required</i>"]
-    S["<b>3 · SCORE 0–100</b><br/>research-area overlap · PhD eligibility<br/>US work-authorization feasibility · term fit · location"]
-    SK(["below threshold → 'maybe' card in the phone app"])
-    T["<b>4 · TAILOR</b><br/>resume PDF · cover letter · research statement<br/><i>selection and emphasis change per job; every fact traced to profile.yaml</i>"]
-    G{"<b>5 · CAN THIS BE<br/>SUBMITTED HONESTLY?</b>"}
-    K["<b>6a · APPLICATION KIT</b> → your inbox, 07:00<br/>posting link + attached materials<br/>+ field-by-field answer sheet scanned from the live form<br/><b>you submit, ~10 min</b>"]
-    A["<b>6b · AUTO-APPLY</b> <i>(opt-in)</i><br/>headless Chromium fills from your profile<br/>and your remembered answer bank"]
-    V{"<b>7 · VERIFY</b><br/>success banner on the page?"}
-    R(["<b>applied ✓</b> — screenshot + email receipt"])
+    D["<b>1 · DISCOVER</b><br/>46 job boards, every 2 h"]
+    M["<b>2 · MATCH</b><br/>research-internship titles only"]
+    S["<b>3 · SCORE 0–100</b><br/>research fit · PhD eligibility<br/>work authorization · term · location"]
+    SK(["'maybe' card in the phone app"])
+    T["<b>4 · TAILOR</b><br/>resume · cover letter · statement<br/><i>every fact from profile.yaml</i>"]
+    G{"<b>5 · CAN IT BE SUBMITTED<br/>HONESTLY?</b>"}
+    K["<b>6a · APPLICATION KIT</b><br/>emailed 07:00 — link, attachments,<br/>field-by-field answer sheet<br/><b>you submit, ~10 min</b>"]
+    A["<b>6b · AUTO-APPLY</b> <i>(opt-in)</i><br/>fills from profile + answer bank"]
+    V{"<b>7 · VERIFY</b><br/>success banner?"}
+    R(["<b>applied ✓</b><br/>screenshot + email receipt"])
 
     D --> M --> S
     S -->|"below threshold"| SK
     S -->|"≥ threshold"| T --> G
-    G -->|"employer restricts AI use · account wall<br/>CAPTCHA · question it can't answer confidently"| K
-    G -->|"clean form and auto_apply: true"| A --> V
+    G -->|"AI-use policy · account wall<br/>CAPTCHA · unsure answer"| K
+    G -->|"clean form, auto_apply on"| A --> V
     V -->|yes| R
-    V -->|"no proof of submission"| K
+    V -->|"no proof"| K
 
-    style G fill:#fff4e6,stroke:#d97706,stroke-width:2px
-    style K fill:#e6f4ea,stroke:#137333,stroke-width:2px
-    style R fill:#e8f0fe,stroke:#1a73e8
+    style G fill:#fde68a,stroke:#b45309,color:#1c1917
+    style K fill:#bbf7d0,stroke:#15803d,color:#14532d
+    style R fill:#bfdbfe,stroke:#1d4ed8,color:#1e3a8a
 ```
 
 Everything lands in SQLite (`postings`, `applications`, screening Q&A log,
