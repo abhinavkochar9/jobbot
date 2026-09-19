@@ -11,16 +11,37 @@ It was built for one person's search and then generalised. Everything
 candidate-specific lives in two files you own (`profile.yaml`, `config.yaml`);
 nothing about you is in the code.
 
+```mermaid
+flowchart TD
+    D["<b>1 · DISCOVER</b><br/>46 public job boards, polled every 2 h<br/><i>Greenhouse · Lever · Ashby · Workday · SmartRecruiters<br/>Workable · Eightfold · Amazon · HN · Remotive</i>"]
+    M["<b>2 · MATCH</b><br/>research-internship titles only<br/><i>drops undergrad-only, pure SWE, clearance-required</i>"]
+    S["<b>3 · SCORE 0–100</b><br/>research-area overlap · PhD eligibility<br/>US work-authorization feasibility · term fit · location"]
+    SK(["below threshold → 'maybe' card in the phone app"])
+    T["<b>4 · TAILOR</b><br/>resume PDF · cover letter · research statement<br/><i>selection and emphasis change per job; every fact traced to profile.yaml</i>"]
+    G{"<b>5 · CAN THIS BE<br/>SUBMITTED HONESTLY?</b>"}
+    K["<b>6a · APPLICATION KIT</b> → your inbox, 07:00<br/>posting link + attached materials<br/>+ field-by-field answer sheet scanned from the live form<br/><b>you submit, ~10 min</b>"]
+    A["<b>6b · AUTO-APPLY</b> <i>(opt-in)</i><br/>headless Chromium fills from your profile<br/>and your remembered answer bank"]
+    V{"<b>7 · VERIFY</b><br/>success banner on the page?"}
+    R(["<b>applied ✓</b> — screenshot + email receipt"])
+
+    D --> M --> S
+    S -->|"below threshold"| SK
+    S -->|"≥ threshold"| T --> G
+    G -->|"employer restricts AI use · account wall<br/>CAPTCHA · question it can't answer confidently"| K
+    G -->|"clean form and auto_apply: true"| A --> V
+    V -->|yes| R
+    V -->|"no proof of submission"| K
+
+    style G fill:#fff4e6,stroke:#d97706,stroke-width:2px
+    style K fill:#e6f4ea,stroke:#137333,stroke-width:2px
+    style R fill:#e8f0fe,stroke:#1a73e8
 ```
-        discover ──► match+score ──► tailor materials ──► fill form ──► gates ──► submit+verify ──► notify
-   46 boards, 2h    0–100 vs your    resume/letter/     Playwright,     policy,   success banner   email
-   ATS APIs,        profile; ≥70     statement from     answers from    CAPTCHA,  + screenshot     receipt,
-   portals, aggs    proceeds         profile.yaml       your rules      caps                       digest
-                                                            │
-                                          can't finish honestly? ──► APPLICATION KIT (email):
-                                          account wall · AI-use attestation · low-confidence answer
-                                          → link + attached materials + field-by-field answer sheet
-```
+
+Everything lands in SQLite (`postings`, `applications`, screening Q&A log,
+answer bank, watcher health) and is visible in the token-protected dashboard and
+phone swipe app. A daily digest summarises new postings, submissions, the manual
+queue, and any watcher that silently broke.
+
 
 ## What it actually does
 
